@@ -1,4 +1,5 @@
-Flask==2.0.1
-gunicorn==20.1.0
-pymssql==2.1.5
 python-dotenv==0.19.2
+flask
+flask-cors
+pyodbc
+pymssql
