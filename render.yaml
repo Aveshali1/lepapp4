@@ -2,9 +2,7 @@ services:
   - type: web
     name: azure-patient-api
     env: python
-    buildCommand: |
-      bash build.sh
-      pip install -r requirements.txt
+    buildCommand: pip install -r requirements.txt
     startCommand: python app.py
     envVars:
       - key: AZURE_SQL_SERVER
