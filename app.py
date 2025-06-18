@@ -3,37 +3,44 @@ import pyodbc
 import os
 from dotenv import load_dotenv
 
-load_dotenv()  # Load env variables
+# Load environment variables
+load_dotenv()
 
 app = Flask(__name__)
 
-# DB config
+# Azure SQL DB connection config
 server = os.getenv('AZURE_SQL_SERVER')
 database = os.getenv('AZURE_SQL_DATABASE')
 username = os.getenv('AZURE_SQL_USERNAME')
 password = os.getenv('AZURE_SQL_PASSWORD')
 driver = '{ODBC Driver 17 for SQL Server}'
 
-# Connection function
+# Function to connect to Azure SQL
 def get_connection():
     conn_str = f'DRIVER={driver};SERVER={server};DATABASE={database};UID={username};PWD={password}'
     return pyodbc.connect(conn_str)
 
+# Index route to check status
+@app.route('/')
+def index():
+    return "Azure SQL API working"
+
+# Login endpoint
 @app.route('/login', methods=['POST'])
 def login():
     data = request.json
     username = data.get('username')
     phone = data.get('phone')
-    password = data.get('password')
+    password_input = data.get('password')
 
     try:
         conn = get_connection()
         cursor = conn.cursor()
         query = """
-        SELECT * FROM Users 
+        SELECT Role FROM Users 
         WHERE UserName = ? AND PhoneNo = ? AND Password = ?
         """
-        cursor.execute(query, (username, phone, password))
+        cursor.execute(query, (username, phone, password_input))
         row = cursor.fetchone()
         if row:
             return jsonify({"status": "success", "role": row.Role}), 200
@@ -42,6 +49,7 @@ def login():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+# Submit patient data endpoint
 @app.route('/submit', methods=['POST'])
 def submit():
     data = request.json
@@ -73,9 +81,7 @@ def submit():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/')
-def index():
-    return "Azure SQL API working"
-
+# Start the server
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
