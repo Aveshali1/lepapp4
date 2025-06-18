@@ -2,7 +2,9 @@ services:
   - type: web
     name: azure-patient-api
     env: python
-    buildCommand: pip install -r requirements.txt
+    buildCommand: |
+      bash build.sh
+      pip install -r requirements.txt
     startCommand: python app.py
     envVars:
       - key: AZURE_SQL_SERVER
@@ -12,4 +14,6 @@ services:
       - key: AZURE_SQL_USERNAME
         value: Avesh01
       - key: AZURE_SQL_PASSWORD
-        value: YourAzurePasswordHere
+        value: YourActualPasswordHere
+      - key: RENDER
+        value: "true"
